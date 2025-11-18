@@ -1,21 +1,22 @@
 using System;
 using System.Data;
+using System.Data.Common;
 
 using Microsoft.Data.SqlClient;
 
 namespace Inforigami.Regalo.SqlServer
 {
     /// <summary>
-    /// Represents an internal <see cref="SqlConnection" /> and <see cref="SqlTransaction" /> that
+    /// Represents an internal <see cref="DbConnection" /> and <see cref="DbTransaction" /> that
     /// are created and managed by Regalo.
     /// </summary>
     internal sealed class TransientSqlSession : ISqlSession
     {
         /// <inheritdoc />
-        public SqlConnection Connection { get; }
+        public DbConnection Connection { get; }
 
         /// <inheritdoc />
-        public SqlTransaction Transaction { get; }
+        public DbTransaction Transaction { get; }
 
         public TransientSqlSession(string connectionString)
         {
@@ -36,7 +37,7 @@ namespace Inforigami.Regalo.SqlServer
             Transaction.Dispose();
         }
 
-        private static (SqlConnection, SqlTransaction) Connect(string connectionString)
+        private static (DbConnection, DbTransaction) Connect(string connectionString)
         {
             var connection = new SqlConnection(connectionString);
             try

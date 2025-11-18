@@ -6,6 +6,7 @@ using System.Linq;
 using Inforigami.Regalo.Core;
 using Inforigami.Regalo.EventSourcing;
 using Inforigami.Regalo.Interfaces;
+
 using Newtonsoft.Json;
 
 namespace Inforigami.Regalo.SqlServer
@@ -69,8 +70,8 @@ namespace Inforigami.Regalo.SqlServer
                 command.CommandType = CommandType.Text;
                 command.CommandText = @"select * from EventStreamEvent where EventStreamId = @eventStreamId and Version <= @Version order by Version;";
 
-                var eventStreamIdParameter = command.Parameters.Add("@EventStreamId", SqlDbType.NVarChar, 1024);
-                var versionParameter     = command.Parameters.Add("@Version", SqlDbType.Int);
+                var eventStreamIdParameter = command.AddParameter("@EventStreamId", DbType.String, 1024);
+                var versionParameter     = command.AddParameter("@Version", DbType.Int32);
 
                 eventStreamIdParameter.Value = eventStreamId;
                 versionParameter.Value = version == EntityVersion.Latest ? int.MaxValue : version;
@@ -139,7 +140,7 @@ namespace Inforigami.Regalo.SqlServer
             eventCommand.CommandType = CommandType.Text;
             eventCommand.CommandText = @"delete from EventStreamEvent where EventStreamId = @EventStreamId;";
 
-            var eventStreamIdParameter = eventCommand.Parameters.Add("@EventStreamId", SqlDbType.NVarChar, 1024);
+            var eventStreamIdParameter = eventCommand.AddParameter("@EventStreamId", DbType.String, 1024);
             eventStreamIdParameter.Value = eventStreamId;
 
             eventCommand.ExecuteNonQuery();
@@ -152,11 +153,11 @@ namespace Inforigami.Regalo.SqlServer
             eventCommand.CommandType = CommandType.Text;
             eventCommand.CommandText = @"delete from EventStream where Id = @EventStreamId and [Version] = @Version;";
 
-            var eventStreamIdParameter = eventCommand.Parameters.Add("@EventStreamId", SqlDbType.NVarChar, 1024);
-            var versionParameter     = eventCommand.Parameters.Add("@Version", SqlDbType.Int);
+            var eventStreamIdParameter = eventCommand.AddParameter("@EventStreamId", DbType.String, 1024);
+            var versionParameter       = eventCommand.AddParameter("@Version", DbType.Int32);
 
             eventStreamIdParameter.Value = eventStreamId;
-            versionParameter.Value     = version;
+            versionParameter.Value       = version;
 
             var rowsDeleted = eventCommand.ExecuteNonQuery();
 
@@ -176,9 +177,9 @@ namespace Inforigami.Regalo.SqlServer
             eventCommand.CommandType = CommandType.Text;
             eventCommand.CommandText = @"insert into EventStreamEvent (EventStreamId, [Version], Data) values (@EventStreamId, @Version, @Data);";
 
-            var eventStreamIdParameter = eventCommand.Parameters.Add("@EventStreamId", SqlDbType.NVarChar, 1024);
-            var versionParameter       = eventCommand.Parameters.Add("@Version", SqlDbType.Int);
-            var dataParameter          = eventCommand.Parameters.Add("@Data", SqlDbType.NVarChar, -1);
+            var eventStreamIdParameter = eventCommand.AddParameter("@EventStreamId", DbType.String, 1024);
+            var versionParameter       = eventCommand.AddParameter("@Version", DbType.Int32);
+            var dataParameter          = eventCommand.AddParameter("@Data", DbType.String, -1);
 
             eventCommand.Prepare();
 
@@ -199,9 +200,9 @@ namespace Inforigami.Regalo.SqlServer
             eventStreamCommand.CommandType = CommandType.Text;
             eventStreamCommand.CommandText = @"update EventStream set Version = @Version where Id = @Id and Version = @ExpectedVersion;";
 
-            eventStreamCommand.Parameters.AddWithValue("@Id", eventStreamId);
-            eventStreamCommand.Parameters.AddWithValue("@Version", newEvents.Last().Version);
-            eventStreamCommand.Parameters.AddWithValue("@ExpectedVersion", expectedVersion);
+            eventStreamCommand.AddParameterWithValue("@Id", eventStreamId);
+            eventStreamCommand.AddParameterWithValue("@Version", newEvents.Last().Version);
+            eventStreamCommand.AddParameterWithValue("@ExpectedVersion", expectedVersion);
 
             int rowsUpdated = eventStreamCommand.ExecuteNonQuery();
 
@@ -223,8 +224,8 @@ namespace Inforigami.Regalo.SqlServer
             eventStreamCommand.CommandType = CommandType.Text;
             eventStreamCommand.CommandText = @"insert into EventStream (Id, [Version]) values (@Id, @Version);";
 
-            eventStreamCommand.Parameters.AddWithValue("@Id", eventStreamId);
-            eventStreamCommand.Parameters.AddWithValue("@Version", newEvents.Last().Version);
+            eventStreamCommand.AddParameterWithValue("@Id", eventStreamId);
+            eventStreamCommand.AddParameterWithValue("@Version", newEvents.Last().Version);
 
             eventStreamCommand.ExecuteNonQuery();
         }

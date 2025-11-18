@@ -1,9 +1,9 @@
-using Microsoft.Data.SqlClient;
+using System.Data.Common;
 
 namespace Inforigami.Regalo.SqlServer
 {
     /// <summary>
-    /// Represents a <see cref="SqlConnection" /> and <see cref="SqlTransaction" /> that are externally controlled.
+    /// Represents a <see cref="DbConnection" /> and <see cref="DbTransaction" /> that are externally controlled.
     /// </summary>
     /// <remarks>
     /// It is the responsibility of the external owner to manage and dispose of the connection and transaction.
@@ -11,17 +11,17 @@ namespace Inforigami.Regalo.SqlServer
     /// </remarks>
     public sealed class ExternalSqlSession : ISqlSession
     {
-        public ExternalSqlSession(SqlConnection connection, SqlTransaction transaction)
+        public ExternalSqlSession(DbConnection connection, DbTransaction transaction)
         {
             Connection = connection;
             Transaction = transaction;
         }
 
         /// <inheritdoc />
-        public SqlConnection Connection { get; }
+        public DbConnection Connection { get; }
 
         /// <inheritdoc />
-        public SqlTransaction Transaction { get; }
+        public DbTransaction Transaction { get; }
 
         /// <inheritdoc />
         public void Complete()
